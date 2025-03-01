@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+<h2>Product List</h2>
+<a href="{{ url_for('add_product') }}">Add Product</a>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Image</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.category }}</td>
+            <td>${{ product.price }}</td>
+            <td>{{ product.description }}</td>
+            <td><img src="{{ url_for('static', filename='images/' + product.image_url) }}" width="100"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

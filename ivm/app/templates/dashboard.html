@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Inventory Management</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+        }
+        .navbar {
+            background-color: #004d00;
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+        }
+        .navbar-brand:hover, .nav-link:hover {
+            color: #a0ffa0 !important;
+        }
+        .navbar-collapse {
+            text-align: center;
+        }
+        .navbar-nav li {
+            margin: 0 10px;
+        }
+        .dashboard-content {
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .graph-container {
+            margin-top: 40px;
+        }
+        .graph-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .graph-container canvas {
+            margin-bottom: 30px;
+        }
+        .data-table {
+            margin: 40px 0;
+        }
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .data-table th, .data-table td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        .data-table th {
+            background-color: #004d00;
+            color: white;
+        }
+        .info-section {
+            margin-top: 40px;
+            background-color: #eaf8e1;
+            padding: 30px;
+            border-radius: 8px;
+        }
+        .info-section img {
+            width: 80%; /* Reduced image size for clarity */
+            max-width: 800px; /* Ensure it doesn't stretch too wide */
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .footer {
+            text-align: center;
+            background-color: #004d00;
+            color: white;
+            padding: 10px 0;
+            margin-top: 40px;
+        }
+        .footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+     <!-- Navigation Bar -->
+     <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">Smart Inventory</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Home</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="productDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Product
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="productDropdown">
+                            <li><a class="dropdown-item" href="/view-product">View Product</a></li>
+                            <li><a class="dropdown-item" href="/manage-product">Manage</a></li>
+                            <li><a class="dropdown-item" href="/add-product">Add Product</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/recommended-products">Recommended Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content container">
+        <h1>Welcome to the Smart Inventory Management System</h1>
+        <p>Monitor your inventory, analyze trends, and make data-driven decisions with ease.</p>
+          <!-- Admin Product Management -->
+          {% if user_type == 'admin' %}
+          <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="/add-product" method="POST">
+                          <div class="modal-body">
+                              <div class="mb-3">
+                                  <label for="product_name" class="form-label">Product Name</label>
+                                  <input type="text" class="form-control" id="product_name" name="product_name" required>
+                              </div>
+                              <div class="mb-3">
+                                  <label for="stock" class="form-label">Stock</label>
+                                  <input type="number" class="form-control" id="stock" name="stock" required>
+                              </div>
+                              <div class="mb-3">
+                                  <label for="sales" class="form-label">Sales</label>
+                                  <input type="number" class="form-control" id="sales" name="sales" required>
+                              </div>
+                              <div class="mb-3">
+                                  <label for="returns" class="form-label">Returns</label>
+                                  <input type="number" class="form-control" id="returns" name="returns" required>
+                              </div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary">Add Product</button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      {% endif %}
+
+        
+        <!-- Graphs Section -->
+        <div class="graph-container">
+            <h3>Inventory Insights</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-table">
+            <h3>Inventory Data Table</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Sales</th>
+                        <th>Returns</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable">
+                    <tr>
+                        <td>Electronics</td>
+                        <td>50</td>
+                        <td>30</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>Home Accessories</td>
+                        <td>80</td>
+                        <td>60</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>Clothings</td>
+                        <td>120</td>
+                        <td>90</td>
+                        <td>20</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Images and Information -->
+        <div class="info-section">
+            <h3>The Benefits of Inventory Management</h3>
+            <img src="https://www.investopedia.com/thmb/-gSkNVAmQu2xZuC2qIAqAzJ8qw0=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/inventory-management-8595e839c2884128997ca77f00a8da2b.jpg" alt="Inventory Management">
+            <p>A company's inventory is one of its most valuable assets. In retail, manufacturing, food services, and other inventory-intensive sectors, a company's inputs (such as raw materials) and finished products are the core of its business...</p>
+        </div>
+
+        <div class="info-section">
+            <h3>FMCG Distribution and Inventory Management</h3>
+            <img src="https://prempack.com/wp-content/uploads/2023/08/iStock-1484852942-scaled.jpg" alt="FMCG Distribution">
+            <p>Many distributors use one or the other financial accounting software or Inventory Management System to make some sense of their purchase patterns, but the smaller ones rely on their ‘bahi-khaata’...</p>
+        </div>
+
+        <div class="info-section">
+            <h3>Basic Concepts of Inventory Management</h3>
+            <img src="https://www.skunexus.com/hs-fs/hubfs/Best%20Online%20Inventory%20Control%20Software.webp?width=1187&name=Best%20Online%20Inventory%20Control%20Software.webp" alt="Basic Concepts">
+            <p>Inventory management is the process of tracking and managing a company’s inventory, which includes the products, raw materials, and supplies that are used to produce or sell goods...</p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Smart Inventory Management. All Rights Reserved. Designed by Your Company</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js Script -->
+    <script>
+        const inventoryData = [50, 80, 120];
+        const salesData = [30, 60, 90];
+        const returnsData = [5, 10, 20];
+
+        const labels = ['Electronics', 'Home Accessories', 'Clothings'];
+
+        function createChart(ctx, label, data, bgColor, borderColor) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: bgColor,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Creating various graphs
+        createChart(document.getElementById('barChart'), 'Sales vs Quantity', salesData, 'rgba(0, 77, 0, 0.2)', '#004d00');
+        
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Product Sales',
+                    data: salesData,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                }]
+            }
+        });
+        
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Sales Over Time',
+                    data: salesData,
+                    borderColor: '#FF5733',
+                    fill: false
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Product Returns',
+                    data: returnsData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: '#ff6384',
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+</body>
+</html>

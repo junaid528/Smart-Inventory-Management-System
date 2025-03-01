@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #3e4a61, #2a2d35); /* Darker gradient for depth */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-size: cover;
+            background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png'); /* Subtle texture */
+        }
+
+        .welcome-header {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #f0db4f;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-container {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem; /* Reduced padding */
+            width: 100%;
+            max-width: 350px; /* Reduced width */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2); /* Soft glowing border */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 15px; /* Reduced space between inputs */
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            background-color: transparent;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #f39c12;
+            box-shadow: 0 0 8px rgba(243, 156, 18, 0.7);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #e74c3c, #f39c12);
+        }
+
+        p {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #f0db4f;
+            margin-top: 15px;
+        }
+
+        p a {
+            color: #f39c12;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+            color: #e74c3c;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: #f0db4f;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-header">Welcome Back to the SIMS</div>
+    <div class="form-container">
+        <h1>Login to Your Account</h1>
+        <form action="/login" method="POST">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <!-- User Type Selection -->
+            <div class="input-group">
+                <label for="user_type">User Type</label>
+                <select id="user_type" name="user_type" required>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <!-- Admin Security Code (hidden initially) -->
+            <div class="input-group" id="admin_security_code_container" style="display: none;">
+                <label for="admin_security_code">Admin Security Code</label>
+                <input type="password" id="admin_security_code" name="admin_security_code" placeholder="Enter admin security code" required>
+            </div>
+
+            <button type="submit">Login</button>
+            <div class="forgot-password">
+                <a href="/forgot-password">Forgot Password?</a>
+            </div>
+            <p>Don't have an account? <a href="/register">Register</a></p>
+        </form>
+    </div>
+
+    <script>
+        // Show/Hide Admin Security Code field based on user type selection
+        document.getElementById('user_type').addEventListener('change', function() {
+            var userType = this.value;
+            var adminSecurityCodeContainer = document.getElementById('admin_security_code_container');
+
+            if (userType === 'admin') {
+                adminSecurityCodeContainer.style.display = 'block'; // Show security code input
+            } else {
+                adminSecurityCodeContainer.style.display = 'none'; // Hide security code input
+            }
+        });
+    </script>
+</body>
+</html>
